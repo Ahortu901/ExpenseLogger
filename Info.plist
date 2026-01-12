@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>needed to select receipt photos</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Needed to take photos of receipts
+Needed to take photos of receipts.
+Needed to take photos of receipts.
+Needed to take photos of receipts.
+Needed to take photos of receipts</string>
+</dict>
+</plist>
