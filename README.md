@@ -34,4 +34,4 @@ A native iOS expense logging application built using **Swift** and **SwiftUI** i
    git clone https://github.com/Ahortu901/ExpenseLogger.git
 
 ## Author
-    GitHub: [Ahortu901]
+     Ahortu901
