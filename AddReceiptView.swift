@@ -1,6 +1,7 @@
 import SwiftUI
 import PhotosUI
 import SwiftData
+import UIKit
 
 struct AddReceiptView: View {
     @Environment(\.dismiss) private var dismiss
@@ -13,14 +14,27 @@ struct AddReceiptView: View {
     @State private var isSaving = false
     @State private var errorMessage: String?
 
+    // NEW: control sheets
+    @State private var showingCamera = false
+    @State private var showingPhotoPicker = false
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("Receipt photo") {
-                    PhotosPicker(selection: $selectedItem, matching: .images) {
-                        HStack {
-                            Image(systemName: "camera")
-                            Text(selectedUIImage == nil ? "Select receipt photo" : "Change photo")
+
+                    // NEW: two buttons (camera + library)
+                    HStack(spacing: 12) {
+                        Button {
+                            openCamera()
+                        } label: {
+                            Label("Take photo", systemImage: "camera")
+                        }
+
+                        Button {
+                            showingPhotoPicker = true
+                        } label: {
+                            Label("Select photo", systemImage: "photo.on.rectangle")
                         }
                     }
 
@@ -43,7 +57,8 @@ struct AddReceiptView: View {
 
                 if let errorMessage {
                     Section {
-                        Text(errorMessage).foregroundStyle(.red)
+                        Text(errorMessage)
+                            .foregroundStyle(.red)
                     }
                 }
             }
@@ -59,10 +74,31 @@ struct AddReceiptView: View {
                     .disabled(isSaving)
                 }
             }
+            // Library picker presentation (NEW style)
+            .photosPicker(isPresented: $showingPhotoPicker,
+                          selection: $selectedItem,
+                          matching: .images)
+
+            // Camera sheet (NEW)
+            .sheet(isPresented: $showingCamera) {
+                CameraPicker { image in
+                    self.selectedUIImage = image
+                }
+            }
             .onChange(of: selectedItem) { _, newValue in
                 guard let newValue else { return }
                 Task { await loadImage(from: newValue) }
             }
+        }
+    }
+
+    // NEW: Safe camera launch (simulator has no camera)
+    private func openCamera() {
+        errorMessage = nil
+        if UIImagePickerController.isSourceTypeAvailable(.camera) {
+            showingCamera = true
+        } else {
+            errorMessage = "Camera not available on this device (Simulator). Use Select photo instead."
         }
     }
 
@@ -86,11 +122,10 @@ struct AddReceiptView: View {
         errorMessage = nil
 
         guard let image = selectedUIImage else {
-            errorMessage = "Please select a receipt photo."
+            errorMessage = "Please add a receipt photo."
             return
         }
 
-        // Parse amount safely
         let normalized = amountText.replacingOccurrences(of: ",", with: ".")
         guard let decimal = Decimal(string: normalized), decimal >= 0 else {
             errorMessage = "Enter a valid amount (e.g. 12.50)."
@@ -110,10 +145,4 @@ struct AddReceiptView: View {
         isSaving = false
     }
 }
-//
-//  AddReceiptView.swift
-//  ExpenseLogger
-//
-//  Created by Derrick Ahortu on 12/01/2026.
-//
 
