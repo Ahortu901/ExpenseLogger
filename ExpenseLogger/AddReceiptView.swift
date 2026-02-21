@@ -1,6 +1,7 @@
 import SwiftUI
 import PhotosUI
 import SwiftData
+import UIKit
 
 struct AddReceiptView: View {
     @Environment(\.dismiss) private var dismiss
@@ -8,6 +9,7 @@ struct AddReceiptView: View {
 
     @State private var selectedItem: PhotosPickerItem?
     @State private var selectedUIImage: UIImage?
+    @State private var showCamera = false
 
     @State private var amountText: String = ""
     @State private var isSaving = false
@@ -19,9 +21,25 @@ struct AddReceiptView: View {
                 Section("Receipt photo") {
                     PhotosPicker(selection: $selectedItem, matching: .images) {
                         HStack {
-                            Image(systemName: "camera")
-                            Text(selectedUIImage == nil ? "Select receipt photo" : "Change photo")
+                            Image(systemName: "photo.on.rectangle")
+                            Text(selectedUIImage == nil ? "Choose from Library" : "Change from Library")
                         }
+                    }
+
+                    Button {
+                        showCamera = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "camera")
+                            Text("Take Photo")
+                        }
+                    }
+                    .disabled(!UIImagePickerController.isSourceTypeAvailable(.camera))
+
+                    if !UIImagePickerController.isSourceTypeAvailable(.camera) {
+                        Text("Camera not available on this device.")
+                            .font(.footnote)
+                            .foregroundStyle(.secondary)
                     }
 
                     if let uiImage = selectedUIImage {
@@ -62,6 +80,11 @@ struct AddReceiptView: View {
             .onChange(of: selectedItem) { _, newValue in
                 guard let newValue else { return }
                 Task { await loadImage(from: newValue) }
+            }
+            .sheet(isPresented: $showCamera) {
+                ImagePicker(source: .camera) { image in
+                    self.selectedUIImage = image
+                }
             }
         }
     }
@@ -116,4 +139,5 @@ struct AddReceiptView: View {
 //
 //  Created by Derrick Ahortu on 12/01/2026.
 //
+
 
