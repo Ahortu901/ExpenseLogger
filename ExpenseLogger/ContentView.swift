@@ -76,8 +76,6 @@ struct ContentView: View {
         let ns = value as NSDecimalNumber
         let formatter = NumberFormatter()
         formatter.numberStyle = .currency
-        // You can force a currency code if needed:
-        // formatter.currencyCode = "EUR"
         return formatter.string(from: ns) ?? "\(ns)"
     }
 }
